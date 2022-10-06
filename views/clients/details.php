@@ -13,4 +13,4 @@
         <label for="email">Email: </label> <b><?= $model->email; ?></b><br/>
     </div>
 
-    <?= $this->render('contacts', $_params_); ?>
+    <?= $this->render('../contacts', $_params_); ?>

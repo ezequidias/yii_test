@@ -23,4 +23,4 @@
         <button type="submit" class="btn btn-primary mt-2">Save</button>
     </form>
 
-    <?= $this->render('contacts', $_params_); ?>
+    <?= $this->render('../contacts', $_params_); ?>

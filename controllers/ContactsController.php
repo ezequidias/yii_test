@@ -10,6 +10,19 @@ use yii\web\NotFoundHttpException;
 class ContactsController extends \yii\web\Controller
 {
 
+     public function actionIndex()
+    {
+        $contacts = ClientContacts::find()
+        ->select(['count(*) AS count','country_code'])
+        ->groupBy('country_code')
+        ->asArray()
+        ->all();
+
+        return $this->render('index', [
+            'contacts' => $contacts,
+        ]);
+    }
+
      public function actionCreate($id)
     {
         $errors = [];
@@ -48,11 +61,15 @@ class ContactsController extends \yii\web\Controller
 
     public function actionUpdate($id, $id_contact)
     {
+        $errors = [];
         $model = Clients::findOne($id);
         if(!$model) throw new NotFoundHttpException("Página não encontrada");
         
         $contact = ClientContacts::findOne($id_contact);
         if(!$contact) throw new NotFoundHttpException("Página não encontrada");
+
+        $client = new \GuzzleHttp\Client(['base_uri' => 'https://restcountries.com/v3.1/all']);
+        $res = $client->request('GET');
 
         $request = \yii::$app->request;
         
@@ -64,7 +81,9 @@ class ContactsController extends \yii\web\Controller
         }
 
         return $this->render('update', [
-            'model' => $model
+            'model' => $model,
+            'errors' => $errors,
+            'countries' => json_decode($res->getBody()->getContents())
         ]);
     }
 
