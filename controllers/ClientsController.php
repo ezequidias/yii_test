@@ -18,7 +18,7 @@ class ClientsController extends \yii\web\Controller
         return [
             'access' => [
                 'class' => AccessControl::class,
-                'only' => ['index', 'update'],
+                'only' => ['index', 'details', 'update', 'create', 'delete'],
                 'rules' => [
                     [
                         'actions' => ['index'],
@@ -26,7 +26,7 @@ class ClientsController extends \yii\web\Controller
                         'roles' => ['?'],
                     ],
                     [
-                        'actions' => ['index', 'details', 'update', 'create'],
+                        'actions' => ['index', 'details', 'update', 'create', 'delete'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
