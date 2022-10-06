@@ -32,7 +32,7 @@ class ContactsController extends \yii\web\Controller
                 $contact->created_at = date('Y-m-d H:i:s');
                 $contact->save();  
                 $errors = [];
-                // return $this->redirect(['clients/'.$id.'/update']);
+                return $this->redirect(['clients/'.$id.'/update']);
             // } else {
             //     // validation failed: $errors is an array containing error messages
             //     $errors = $contact->errors;
