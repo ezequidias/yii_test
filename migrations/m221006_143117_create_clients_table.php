@@ -15,7 +15,7 @@ class m221006_143117_create_clients_table extends Migration
         $this->createTable('{{%clients}}', [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
-            'photo' => $this->string(255),
+            'photo' => $this->text(),
             'email' => $this->string()->notNull()->unique(),
             'is_deleted' => $this->boolean()->defaultValue(0),
             'deleted_at' => $this->dateTime(),
