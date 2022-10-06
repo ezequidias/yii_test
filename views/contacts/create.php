@@ -11,14 +11,24 @@ use yii\widgets\ActiveForm;
         <label for="name">name: </label> <b><?= $model->name; ?></b><br/>
         <label for="email">Email: </label> <b><?= $model->email; ?></b><br/>
     </div>
-    <form name="form" method="post" action="<?= Url::to(['contacts/create']); ?>">
+    <form name="form" method="post" action="<?= Url::to(['clients/'.$model->id.'/contacts/create']); ?>">
+<?php var_dump($errors); ?>
+    <?php if(count($errors) > 0): ?>
+    <div class="alert alert-danger" role="alert">
+        <?php
+        foreach($errors as $error){
+            echo $error[0].'</br>';
+        }
+        ?>
+    </div>
+    <?php endif; ?>
 
     <input type="hidden" name="<?= \yii::$app->request->csrfParam; ?>" 
                 value="<?= \yii::$app->request->csrfToken; ?>">
 
         <div class="form-group">
-            <label for="name">Country:</label>
-            <select class="form-control" name="country">
+            <label for="country_code">Country:</label>
+            <select class="form-control" name="country_code">
                 <?php
                 foreach($countries as $country){
                     echo '<option value="'.($country->idd->root ?? '').($country->idd->suffixes[0] ?? '') .'">'. $country->name->common.' ('.($country->idd->root ?? '').($country->idd->suffixes[0] ?? '') .') </option>';
@@ -27,7 +37,7 @@ use yii\widgets\ActiveForm;
             </select >
         </div>
         <div class="form-group">
-            <label for="email">Number:</label>
+            <label for="phone">Number:</label>
             <input type="text" class="form-control" id="number" name="number" placeholder="number">
         </div>
 

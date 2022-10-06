@@ -22,8 +22,8 @@
                     <td><?= $contact->country_code; ?></td>
                     <td><?= $contact->number; ?></td>
                     <td>
-                        <a href="<?= Url::to(['clients/contacts/update', 'id' => $model->id, 'id_contact' => $contact->id]);?>" class="btn btn-success btn-sm text-white">Edit</a>
-                        <a href="<?= Url::to(['clients/contacts/delete', 'id' => $model->id, 'id_contact' => $contact->id]);?>" class="btn btn-danger btn-sm">Delete</a>
+                        <a href="<?= Url::to(['clients/'.$model->id.'/contacts/'.$contact->id.'/update']);?>" class="btn btn-success btn-sm text-white">Edit</a>
+                        <a href="<?= Url::to(['clients/'.$model->id.'/contacts/'.$contact->id.'/delete']);?>" class="btn btn-danger btn-sm">Delete</a>
                     </td>
                 </tr>
             <?php endforeach; ?>
