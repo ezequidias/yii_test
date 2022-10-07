@@ -1,7 +1,7 @@
 <?php
 
 namespace app\models;
-use yii\db\ActiveRecord;
+use  yii\db\ActiveRecord;
 use yii2tech\ar\softdelete\SoftDeleteBehavior;
 use yii2tech\ar\softdelete\SoftDeleteQueryBehavior;
 
@@ -31,12 +31,12 @@ class Clients extends ActiveRecord
      public function rules()
      {
          return [
-            [['name', 'email'], 'safe'],
-            [['name', 'email'], 'required'],
-            [['name', 'email'], 'string', 'max' => 255], 
-            [['email'], 'unique'], 
+            [['name', 'email'], 'required'],  
+            [['email'], 'string', 'max' => 255], 
+            [['name'], 'string', 'min' => '5'],
+            [['email'], 'email'], 
          ];
-     }
+    }
 
     public static function find()
     {
