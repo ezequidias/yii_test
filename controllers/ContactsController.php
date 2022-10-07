@@ -66,7 +66,7 @@ class ContactsController extends \yii\web\Controller
             $contact->load($request->post());
             $country_code = $request->post('ClientContacts')['country_code'];
             $number = $request->post('ClientContacts')['number'];
-            $exists_number = ClientContacts::findOne(['country_code' => $country_code, 'number' => $number]);
+            $exists_number = Clients::find()->innerJoinWith('contacts')->where(['client_contacts.country_code' => $country_code])->where(['client_contacts.number' => $number])->one();
             if($exists_number){
                 \yii::$app->getSession()->setFlash('error', 'Number already registered! Use another number');
                 return $this->render('create', ['model' => $model, 'model_contact' => $contact, 'countries' => $countries]);
@@ -106,7 +106,7 @@ class ContactsController extends \yii\web\Controller
             $contact->load($request->post());
             $country_code = $request->post('ClientContacts')['country_code'];
             $number = $request->post('ClientContacts')['number'];
-            $exists_number = ClientContacts::find()->where(['!=', 'id', $id_contact])->andWhere(['country_code' => $country_code])->andWhere(['number' => $number])->one();
+            $exists_number = Clients::find()->innerJoinWith('contacts')->where(['!=', 'client_contacts.id', $id_contact])->andWhere(['client_contacts.country_code' => $country_code])->andWhere(['client_contacts.number' => $number])->one();
             if($exists_number){
                 \yii::$app->getSession()->setFlash('error', 'Number already registered! Use another number');
                 return $this->render('update', ['model' => $model, 'model_contact' => $contact, 'countries' => $countries]);
