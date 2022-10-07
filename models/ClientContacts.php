@@ -31,8 +31,9 @@ class ClientContacts extends ActiveRecord
      public function rules()
      {
          return [
-            // [['country_code', 'number'], 'required'],
-            // [['number'], 'integer', 'min' => 9, 'max' => 9], 
+            [['country_code', 'number'], 'string'],
+            [['country_code', 'number'], 'required'],
+            [['number'], 'string', 'length' => [9, 9]], 
          ];
      }
 

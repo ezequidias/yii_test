@@ -1,30 +1,31 @@
 <?php
         /* @var $this yii\web\View */
         use yii\helpers\Url;
+        use yii\helpers\Html;
+        use yii\bootstrap5\ActiveForm;
+        use kartik\select2\Select2
     ?>
-    <h1>Update Conatct</h1>
+    <h1>Update Contact</h1>
 
-    <form name="form" method="post" action="<?= Url::to(['clients/'.$model->id.'/contacts/create']); ?>">
+    <div class="form-group">
+        <label for="name">Photo: </label> <div style="width:50px;height:50px;"><?= $model->photo; ?></div><br/>
+        <label for="name">name: </label> <b><?= $model->name; ?></b><br/>
+        <label for="email">Email: </label> <b><?= $model->email; ?></b><br/>
+    </div>
 
-      <input type="hidden" name="<?= \yii::$app->request->csrfParam; ?>" 
-                value="<?= \yii::$app->request->csrfToken; ?>">
+    <?php if(count($model->errors) > 0): ?>
+    <div class="alert alert-danger" role="alert"> <?php foreach($model->errors as $error)echo $error[0].'</br>'; ?> </div>
+    <?php endif; ?>
 
-        <div class="form-group">
-            <label for="country_code">Country:</label>
-            <select class="form-control" name="country_code">
-                <?php
-                foreach($countries as $country){
-                    echo '<option value="'.($country->idd->root ?? '').($country->idd->suffixes[0] ?? '') .'">'. $country->name->common.' ('.($country->idd->root ?? '').($country->idd->suffixes[0] ?? '') .') </option>';
-                }
-                ?>
-            </select >
-        </div>
-        <div class="form-group">
-            <label for="phone">Number:</label>
-            <input type="text" class="form-control" id="number" name="number" placeholder="number">
-        </div>
-
-        <button type="submit" class="btn btn-primary mt-2">Save</button>
-    </form>
-
-    <?= $this->render('../contacts', $_params_); ?>
+    <?php $form = ActiveForm::begin(['id' => 'clients-contacts-form']); ?>
+        <?= $form->field($model_contact, 'country_code')->widget(Select2::classname(), [
+            'data' => $countries,
+            'options' => ['placeholder' => 'Select a country...'],
+            'pluginOptions' => [
+                'allowClear' => true
+            ],
+        ]); 
+        ?>
+        <?= $form->field($model_contact, 'number')->input('number', ['placeholder' => "Enter Your Number"]) ?>
+        <div class="form-group"> <?= Html::submitButton('Save', ['class' => 'btn btn-primary mt-2']) ?> </div>
+    <?php ActiveForm::end(); ?>

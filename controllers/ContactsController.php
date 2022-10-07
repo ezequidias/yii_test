@@ -4,11 +4,36 @@ namespace app\controllers;
 
 use app\models\Clients;
 use app\models\ClientContacts;
+use yii\filters\AccessControl;
 use yii\data\Pagination;
 use yii\web\NotFoundHttpException;
 
 class ContactsController extends \yii\web\Controller
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'only' => ['index', 'create', 'update', 'delete'],
+                'rules' => [
+                    [
+                        'actions' => ['index'],
+                        'allow' => true,
+                        'roles' => ['?'],
+                    ],
+                    [
+                        'actions' => ['index', 'create', 'update', 'delete'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
+        ];
+    }
 
      public function actionIndex()
     {
@@ -25,74 +50,88 @@ class ContactsController extends \yii\web\Controller
 
      public function actionCreate($id)
     {
-        $errors = [];
+        $request = \yii::$app->request;
+        $countries = [];
         $model = Clients::findOne($id);
         if(!$model) throw new NotFoundHttpException("Página não encontrada");
 
-        $client = new \GuzzleHttp\Client(['base_uri' => 'https://restcountries.com/v3.1/all']);
-        $res = $client->request('GET');
+        $client = new \GuzzleHttp\Client(['base_uri' => 'https://restcountries.com/v2/all']);
+        $client = $client->request('GET');
+        $res = json_decode($client->getBody());
+        foreach($res as $country) $countries[$country->callingCodes[0]] = $country->name. ' ('.$country->callingCodes[0].')';
 
-        $request = \yii::$app->request;
+        $contact = new ClientContacts();
 
         if($request->isPost){
-            $contact = new ClientContacts();
-            // var_dump($request->post());
-            // $contact->load($request->post());
-            // if ($contact->validate()) {
+            $contact->load($request->post());
+            $country_code = $request->post('ClientContacts')['country_code'];
+            $number = $request->post('ClientContacts')['number'];
+            $exists_number = ClientContacts::findOne(['country_code' => $country_code, 'number' => $number]);
+            if($exists_number){
+                \yii::$app->getSession()->setFlash('error', 'Number already registered! Use another number');
+                return $this->render('create', ['model' => $model, 'model_contact' => $contact, 'countries' => $countries]);
+            }
+
+            if ($contact->validate()) {
                 $contact->client_id = $id;
-                $contact->country_code =  $request->post('country_code'); 
-                $contact->number = $request->post('number');
+                $contact->attributes = $request->post(); 
                 $contact->created_at = date('Y-m-d H:i:s');
                 $contact->save();  
-                $errors = [];
                 return $this->redirect(['clients/'.$id.'/update']);
-            // } else {
-            //     // validation failed: $errors is an array containing error messages
-            //     $errors = $contact->errors;
-            // }
+            }
         }
 
         return $this->render('create', [
             'model' => $model,
-            'errors' => $errors,
-            'countries' => json_decode($res->getBody()->getContents())
+            'model_contact' => $contact,
+            'countries' => $countries
         ]);
     }
 
     public function actionUpdate($id, $id_contact)
     {
-        $errors = [];
-        $model = Clients::findOne($id);
-        if(!$model) throw new NotFoundHttpException("Página não encontrada");
-        
-        $contact = ClientContacts::findOne($id_contact);
-        if(!$contact) throw new NotFoundHttpException("Página não encontrada");
-
-        $client = new \GuzzleHttp\Client(['base_uri' => 'https://restcountries.com/v3.1/all']);
-        $res = $client->request('GET');
-
         $request = \yii::$app->request;
+        $countries = [];
+        $model = Clients::find()->where(['id' => $id])->one();
+        $contact = $model->getContacts()->where(['id' => $id_contact])->one();
+        if(!$model) throw new NotFoundHttpException("Página não encontrada");
+        if(!$contact) throw new NotFoundHttpException("Página não encontrada");
         
+        $client = new \GuzzleHttp\Client(['base_uri' => 'https://restcountries.com/v2/all']);
+        $client = $client->request('GET');
+        $res = json_decode($client->getBody());
+        foreach($res as $country) $countries[$country->callingCodes[0]] = $country->name. ' ('.$country->callingCodes[0].')';
+
         if($request->isPost){
-            $model->attributes =  $request->post(); 
-            $model->updated_at = date('Y-m-d H:i:s');
-            $model->save();
-            return $this->redirect(['clients/'.$id.'/update']);
+            $contact->load($request->post());
+            $country_code = $request->post('ClientContacts')['country_code'];
+            $number = $request->post('ClientContacts')['number'];
+            $exists_number = ClientContacts::find()->where(['!=', 'id', $id_contact])->andWhere(['country_code' => $country_code])->andWhere(['number' => $number])->one();
+            if($exists_number){
+                \yii::$app->getSession()->setFlash('error', 'Number already registered! Use another number');
+                return $this->render('update', ['model' => $model, 'model_contact' => $contact, 'countries' => $countries]);
+            }
+
+            if ($contact->validate()) {
+                $contact->attributes = $request->post(); 
+                $contact->updated_at = date('Y-m-d H:i:s');
+                $contact->save();
+                return $this->redirect(['clients/'.$id.'/update']);
+            }
         }
 
         return $this->render('update', [
             'model' => $model,
-            'errors' => $errors,
-            'countries' => json_decode($res->getBody()->getContents())
+            'model_contact' => $contact,
+            'countries' => $countries
         ]);
     }
 
     public function actionDelete($id, $id_contact)
     {
-        $model = Clients::findOne($id);
+        $model = Clients::find()->where(['id' => $id])->one();
+        $contact = $model->getContacts()->where(['id' => $id_contact])->one();
         if(!$model) throw new NotFoundHttpException("Página não encontrada");
-
-        $contact = ClientContacts::findOne($id_contact);
         if(!$contact) throw new NotFoundHttpException("Página não encontrada");
 
         $contact->deleted_at = date('Y-m-d H:i:s');
