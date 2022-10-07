@@ -60,9 +60,7 @@ class ClientsController extends \yii\web\Controller
         $model = Clients::findOne($id);
         if(!$model) throw new NotFoundHttpException("Página não encontrada");
 
-        return $this->render('details', [
-            'model' => $model,
-        ]);
+        return $this->render('details', [ 'model' => $model, ]);
     }
 
     public function actionCreate()
@@ -71,6 +69,7 @@ class ClientsController extends \yii\web\Controller
         $model = new Clients();
         
         if($request->isPost){
+            $model->load($request->post());
             $email = $request->post('Clients')['email'];
             $exists_email = Clients::findOne(['email' => $email]);
             if($exists_email){
@@ -78,7 +77,6 @@ class ClientsController extends \yii\web\Controller
                 return $this->render('create', ['model' => $model]);
             }
 
-            $model->load($request->post());
             if ($model->validate()) {
                 $client = new \GuzzleHttp\Client(['base_uri' => 'https://app.pixelencounter.com/api/basic/monsters/random']);
                 $photo = $client->request('GET');
@@ -100,6 +98,7 @@ class ClientsController extends \yii\web\Controller
         if(!$model) throw new NotFoundHttpException("Página não encontrada");
         
         if($request->isPost){
+            $model->load($request->post());
             $email = $request->post('Clients')['email'];
             $exists_email = Clients::find()->where(['!=', 'id', $id])->andWhere(['email' => $email])->one();
             if($exists_email){
@@ -107,7 +106,6 @@ class ClientsController extends \yii\web\Controller
                 return $this->render('update', ['model' => $model]);
             }
 
-            $model->load($request->post());
             if ($model->validate()) {
                 $model->attributes =  $request->post(); 
                 $model->updated_at = date('Y-m-d H:i:s');
@@ -116,9 +114,7 @@ class ClientsController extends \yii\web\Controller
             }
         }
 
-        return $this->render('update', [
-            'model' => $model
-        ]);
+        return $this->render('update', [ 'model' => $model ]);
     }
 
     public function actionDelete($id)
