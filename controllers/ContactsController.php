@@ -37,9 +37,10 @@ class ContactsController extends \yii\web\Controller
 
      public function actionIndex()
     {
-        $contacts = ClientContacts::find()
-        ->select(['count(*) AS count','country_code'])
-        ->groupBy('country_code')
+        $contacts = Clients::find()
+        ->select(['count(*) AS count','client_contacts.country_code'])
+        ->groupBy('client_contacts.country_code')
+        ->innerJoinWith('contacts')
         ->asArray()
         ->all();
 
